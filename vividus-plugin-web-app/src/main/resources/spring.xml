@@ -390,7 +390,7 @@
                 <bean class="org.vividus.spring.StringToSeleniumLocatorConverter" />
                 <bean class="org.vividus.spring.StringToSearchAttributesConverter" />
                 <bean class="org.vividus.spring.StringToSearchAttributesSetConverter" />
-                <bean class="org.vividus.spring.StringToDateTimeFormatterConverter" />
+                <ref bean="stringToDateTimeFormatterConverter" />
                 <ref bean="stringToEditorConverter" />
             </set>
         </property>
