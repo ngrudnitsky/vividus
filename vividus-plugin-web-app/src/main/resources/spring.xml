@@ -392,6 +392,7 @@
                 <bean class="org.vividus.spring.StringToSearchAttributesSetConverter" />
                 <bean class="org.vividus.spring.StringToDateTimeFormatterConverter" />
                 <bean class="org.vividus.spring.StringToLocaleConverter"/>
+                <ref bean="stringToEditorConverter" />
             </set>
         </property>
     </bean>
