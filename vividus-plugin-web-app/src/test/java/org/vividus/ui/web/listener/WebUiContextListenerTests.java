@@ -27,10 +27,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openqa.selenium.WebDriver;
+import org.vividus.selenium.event.WebDriverCreateEvent;
+import org.vividus.selenium.event.WebDriverQuitEvent;
 import org.vividus.ui.web.context.IWebUiContext;
 import org.vividus.ui.web.context.SearchContextSetter;
-import org.vividus.ui.web.event.WebDriverCreateEvent;
-import org.vividus.ui.web.event.WebDriverQuitEvent;
 
 @ExtendWith(MockitoExtension.class)
 class WebUiContextListenerTests

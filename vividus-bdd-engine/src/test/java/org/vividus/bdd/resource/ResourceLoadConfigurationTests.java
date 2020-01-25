@@ -64,7 +64,7 @@ class ResourceLoadConfigurationTests
 
     private void initProperties(Map<String, String> props)
     {
-        Mockito.when(propertyParser.getPropertyValuesByFamily(VARIABLES_PROPERTY_FAMILY)).thenReturn(props);
+        Mockito.when(propertyParser.getPropertyValuesByPrefix(VARIABLES_PROPERTY_FAMILY)).thenReturn(props);
         resourceLoadConfiguration.init();
     }
 

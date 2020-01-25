@@ -16,62 +16,30 @@
 
 package org.vividus.selenium;
 
-import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
-
-import com.google.common.base.Suppliers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.vividus.selenium.driver.TextFormattingWebDriver;
 import org.vividus.selenium.manager.WebDriverManager;
 import org.vividus.util.json.IJsonUtils;
 import org.vividus.util.property.IPropertyParser;
 
-public class WebDriverFactory implements IWebDriverFactory
+public class WebDriverFactory extends DriverFactory implements IWebDriverFactory
 {
-    private static final Set<String> GENERIC_CAPABILITIES = Stream.of(CapabilityType.class.getFields())
-            .filter(f -> f.getType().equals(String.class))
-            .map(f ->
-            {
-                try
-                {
-                    return f.get(null);
-                }
-                catch (IllegalAccessException e)
-                {
-                    throw new IllegalStateException(e);
-                }
-            })
-            .map(String.class::cast)
-            .collect(Collectors.toSet());
-
     private static final String COMMAND_LINE_ARGUMENTS = "command-line-arguments";
 
-    private static final String SELENIUM_GRID_PROPERTY_FAMILY = "selenium.grid.capabilities";
-
-    @Inject private IRemoteWebDriverFactory remoteWebDriverFactory;
     @Inject private ITimeoutConfigurer timeoutConfigurer;
     @Inject private IPropertyParser propertyParser;
     private WebDriverType webDriverType;
-    private URL remoteDriverUrl;
 
     private IJsonUtils jsonUtils;
-
-    private final Supplier<DesiredCapabilities> seleniumGridDesiredCapabilities = Suppliers.memoize(
-        () -> new DesiredCapabilities(propertyParser.getPropertyValuesByFamily(SELENIUM_GRID_PROPERTY_FAMILY)));
 
     private final ConcurrentHashMap<WebDriverType, WebDriverConfiguration> configurations = new ConcurrentHashMap<>();
 
@@ -96,33 +64,30 @@ public class WebDriverFactory implements IWebDriverFactory
     }
 
     @Override
-    public WebDriver getRemoteWebDriver(DesiredCapabilities desiredCapabilities)
+    protected DesiredCapabilities updateDesiredCapabilities(DesiredCapabilities desiredCapabilities)
     {
-        DesiredCapabilities mergedDesiredCapabilities = new DesiredCapabilities(getSeleniumGridDesiredCapabilities())
-                .merge(desiredCapabilities);
-        WebDriverType webDriverType = WebDriverManager.detectType(mergedDesiredCapabilities);
+        WebDriverType webDriverType = WebDriverManager.detectType(desiredCapabilities);
 
-        Capabilities capabilities = mergedDesiredCapabilities;
+        Capabilities capabilities = desiredCapabilities;
         if (webDriverType != null)
         {
-            webDriverType.prepareCapabilities(mergedDesiredCapabilities);
+            webDriverType.prepareCapabilities(desiredCapabilities);
             if (webDriverType == WebDriverType.CHROME)
             {
                 WebDriverConfiguration configuration = getWebDriverConfiguration(webDriverType, false);
                 ChromeOptions chromeOptions = new ChromeOptions();
                 chromeOptions.addArguments(configuration.getCommandLineArguments());
                 configuration.getExperimentalOptions().forEach(chromeOptions::setExperimentalOption);
-                capabilities = chromeOptions.merge(mergedDesiredCapabilities);
+                capabilities = chromeOptions.merge(desiredCapabilities);
             }
         }
-        return createWebDriver(remoteWebDriverFactory.getRemoteWebDriver(remoteDriverUrl, capabilities));
+        return new DesiredCapabilities(capabilities);
     }
 
-    private WebDriver createWebDriver(WebDriver webDriver)
+    @Override
+    protected void configureWebDriver(WebDriver webDriver)
     {
-        WebDriver driver = new TextFormattingWebDriver(webDriver);
-        timeoutConfigurer.configure(driver.manage().timeouts());
-        return driver;
+        timeoutConfigurer.configure(webDriver.manage().timeouts());
     }
 
     private WebDriverConfiguration getWebDriverConfiguration(WebDriverType webDriverType, boolean localRun)
@@ -170,20 +135,9 @@ public class WebDriverFactory implements IWebDriverFactory
         return Optional.ofNullable(propertyParser.getPropertyValue("web.driver." + webDriverType + "." + propertyKey));
     }
 
-    @Override
-    public DesiredCapabilities getSeleniumGridDesiredCapabilities()
-    {
-        return seleniumGridDesiredCapabilities.get();
-    }
-
     public void setWebDriverType(WebDriverType webDriverType)
     {
         this.webDriverType = webDriverType;
-    }
-
-    public void setRemoteDriverUrl(URL remoteDriverUrl)
-    {
-        this.remoteDriverUrl = remoteDriverUrl;
     }
 
     public void setJsonUtils(IJsonUtils jsonUtils)

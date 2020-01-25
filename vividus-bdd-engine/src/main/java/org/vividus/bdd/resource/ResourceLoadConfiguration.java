@@ -32,7 +32,7 @@ public class ResourceLoadConfiguration implements IResourceLoadConfiguration
 
     public void init()
     {
-        resourceLoadParameters = propertyParser.getPropertyValuesByFamily(VARIABLES_PROPERTY_FAMILY);
+        resourceLoadParameters = propertyParser.getPropertyValuesByPrefix(VARIABLES_PROPERTY_FAMILY);
     }
 
     @Override

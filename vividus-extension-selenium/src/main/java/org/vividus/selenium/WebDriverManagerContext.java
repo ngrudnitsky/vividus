@@ -19,15 +19,18 @@ package org.vividus.selenium;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-
 import org.vividus.selenium.manager.IWebDriverManagerContext;
 import org.vividus.selenium.manager.WebDriverManagerParameter;
 import org.vividus.testcontext.TestContext;
 
 public class WebDriverManagerContext implements IWebDriverManagerContext
 {
-    @Inject private TestContext testContext;
+    private final TestContext testContext;
+
+    public WebDriverManagerContext(TestContext testContext)
+    {
+        this.testContext = testContext;
+    }
 
     @Override
     public <T> T getParameter(WebDriverManagerParameter parameter)

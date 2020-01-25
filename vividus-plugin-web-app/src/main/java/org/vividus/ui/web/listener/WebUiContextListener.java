@@ -20,9 +20,9 @@ import com.google.common.eventbus.Subscribe;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
+import org.vividus.selenium.event.WebDriverCreateEvent;
+import org.vividus.selenium.event.WebDriverQuitEvent;
 import org.vividus.ui.web.context.IWebUiContext;
-import org.vividus.ui.web.event.WebDriverCreateEvent;
-import org.vividus.ui.web.event.WebDriverQuitEvent;
 
 public class WebUiContextListener extends AbstractWebDriverEventListener
 {

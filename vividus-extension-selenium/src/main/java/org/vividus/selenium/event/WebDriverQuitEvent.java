@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.vividus.ui.web.event;
+package org.vividus.selenium.event;
 
 public class WebDriverQuitEvent
 {

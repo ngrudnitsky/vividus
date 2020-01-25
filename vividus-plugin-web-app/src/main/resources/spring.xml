@@ -34,33 +34,6 @@
         <property name="followRedirects" value="${sitemap.parser.follow-redirects}" />
     </bean>
 
-    <bean id="proxy" class="org.vividus.proxy.ThreadedProxy" />
-
-    <bean id="proxyServerFactory" class="org.vividus.proxy.ProxyServerFactory">
-        <property name="trustAllServers" value="${proxy.trust-all-servers}" />
-        <property name="advancedHostResolver">
-            <bean class="org.vividus.proxy.dns.HostNameResolver">
-                <property name="dnsMappingStorage" ref="localDnsStorage" />
-            </bean>
-        </property>
-        <property name="captureTypes" value="${proxy.capture-types}"/>
-    </bean>
-
-    <bean id="timeoutConfigurer" class="org.vividus.selenium.TimeoutConfigurer">
-        <property name="pageLoadTimeout" value="${selenium.timeout.page-load-timeout}" />
-        <property name="pageLoadTimeoutTimeUnit" value="${selenium.timeout.page-load-timeout-unit}" />
-        <property name="asyncScriptTimeout" value="${selenium.timeout.async-script-timeout}" />
-        <property name="asyncScriptTimeoutTimeUnit" value="${selenium.timeout.async-script-timeout-unit}" />
-    </bean>
-
-    <bean id="webDriverFactory" class="org.vividus.selenium.WebDriverFactory">
-        <property name="webDriverType" value="${selenium.browser}" />
-        <property name="remoteDriverUrl" value="${selenium.grid.url}" />
-        <property name="jsonUtils" ref="jsonUtils-LowerCamelCase" />
-    </bean>
-
-    <bean id="remoteWebDriverFactory" class="org.vividus.selenium.RemoteWebDriverFactory" />
-
     <bean id="screenshotFileNameGenerator" class="org.vividus.selenium.screenshot.ScreenshotFileNameGenerator" />
 
     <bean id="screenshotTaker" class="org.vividus.selenium.screenshot.ScreenshotTaker">
@@ -92,10 +65,6 @@
     <bean id="scrollbarHandler" class="org.vividus.selenium.screenshot.ScrollbarHandler">
         <property name="webDriverManager" ref="webDriverManager" />
         <property name="webDriverProvider" ref="webDriverProvider" />
-    </bean>
-
-    <bean id="webDriverManager" class="org.vividus.selenium.manager.WebDriverManager">
-        <property name="nativeApp" value="${mobile-native-app}" />
     </bean>
 
     <bean id="fieldActions" class="org.vividus.ui.web.action.FieldActions" />
@@ -313,6 +282,13 @@
         <property name="windowsStrategy" value="${selenium.windows-strategy}" />
     </bean>
 
+    <bean id="timeoutConfigurer" class="org.vividus.selenium.TimeoutConfigurer">
+        <property name="pageLoadTimeout" value="${selenium.timeout.page-load-timeout}" />
+        <property name="pageLoadTimeoutTimeUnit" value="${selenium.timeout.page-load-timeout-unit}" />
+        <property name="asyncScriptTimeout" value="${selenium.timeout.async-script-timeout}" />
+        <property name="asyncScriptTimeoutTimeUnit" value="${selenium.timeout.async-script-timeout-unit}" />
+    </bean>
+
     <bean id="screenshotTakingSteps" class="org.vividus.bdd.steps.ui.ScreenshotTakingSteps" />
 
     <bean id="proxySteps" class="org.vividus.proxy.steps.ProxySteps" />
@@ -329,19 +305,6 @@
         <property name="webDriverProvider" ref="webDriverProvider" />
         <property name="browserWindowSizeProvider" ref="browserWindowSizeProvider" />
     </bean>
-
-    <bean id="webDriverProvider" class="org.vividus.selenium.WebDriverProvider"
-          destroy-method="destroy">
-        <property name="vividusWebDriverFactory">
-            <bean class="org.vividus.selenium.VividusWebDriverFactory">
-                <property name="remoteExecution" value="${selenium.grid.enabled}" />
-                <property name="webDriverEventListeners" ref="webDriverEventListener-EventHandlers" />
-            </bean>
-        </property>
-        <property name="testContext" ref="testContext" />
-    </bean>
-
-    <bean id="webDriverManagerContext" class="org.vividus.selenium.WebDriverManagerContext" />
 
     <bean id="storyReporter" class="org.vividus.bdd.RunContextStoryReporter">
         <property name="next">
@@ -410,6 +373,19 @@
             </map>
         </property>
     </bean>
+
+    <bean id="webDriverFactory" class="org.vividus.selenium.WebDriverFactory" parent="driverFactory" primary="true">
+        <property name="webDriverType" value="${selenium.browser}" />
+        <property name="jsonUtils" ref="jsonUtils-LowerCamelCase" />
+    </bean>
+
+    <bean id="vividusDriverFactory" class="org.vividus.selenium.VividusWebDriverFactory"
+          parent="parentVividusDriverFactory" >
+        <property name="remoteExecution" value="${selenium.grid.enabled}" />
+        <property name="webDriverEventListeners" ref="webDriverEventListener-EventHandlers" />
+    </bean>
+
+    <bean id="webDriverManager" class="org.vividus.selenium.manager.WebDriverManager" parent="driverManager" primary="true"/>
 
     <util:list id="stepBeanNames-WebUi" value-type="java.lang.String">
         <value>alertSteps</value>

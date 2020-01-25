@@ -11,16 +11,7 @@ dependencies {
     implementation project(':vividus-soft-assert')
     implementation project(':vividus-test-context')
     implementation project(':vividus-util')
-
-    api(group: 'org.seleniumhq.selenium', name: 'selenium-api', version: seleniumVersion)
-    api(group: 'org.seleniumhq.selenium', name: 'selenium-support', version: seleniumVersion)
-    api(group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: seleniumVersion)
-    api(group: 'io.appium', name: 'java-client', version: '7.1.0') {
-        exclude module: 'selenium-java'
-    }
-    api(group: 'ru.yandex.qatools.ashot', name: 'ashot', version: '1.5.4')
-    api(group: 'com.github.crawler-commons', name: 'crawler-commons', version: '1.0')
-    api(group: 'edu.uci.ics', name: 'crawler4j', version: '4.4.0')
+    implementation project(':vividus-extension-selenium')
 
     implementation(group: 'org.seleniumhq.selenium', name: 'selenium-chrome-driver', version: seleniumVersion)
     implementation(group: 'org.seleniumhq.selenium', name: 'selenium-edge-driver', version: seleniumVersion)
@@ -28,13 +19,17 @@ dependencies {
     implementation(group: 'org.seleniumhq.selenium', name: 'selenium-ie-driver', version: seleniumVersion)
     implementation(group: 'org.seleniumhq.selenium', name: 'selenium-safari-driver', version: seleniumVersion)
     implementation(group: 'org.seleniumhq.selenium', name: 'selenium-opera-driver', version: seleniumVersion)
-    implementation(group: 'junit', name: 'junit', version: versions.junit4)
+
+    api(group: 'ru.yandex.qatools.ashot', name: 'ashot', version: '1.5.4')
+    api(group: 'com.github.crawler-commons', name: 'crawler-commons', version: '1.0')
+    api(group: 'edu.uci.ics', name: 'crawler4j', version: '4.4.0')
+
     implementation(group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '3.8.1')
-    implementation(group: 'com.browserup', name: 'browserup-proxy-core', version: '2.0.1')
-    implementation(group: 'xyz.rogfam', name : 'littleproxy', version : '2.0.0-beta-5')
+    implementation(group: 'junit', name: 'junit', version: versions.junit4)
     implementation(group: 'org.springframework', name: 'spring-context', version: versions.spring)
     implementation(group: 'org.apache.commons', name: 'commons-text', version: versions.commonsText)
     implementation(group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j)
+    implementation(group: 'com.browserup', name: 'browserup-proxy-core', version: '2.0.1')
     implementation(group: 'javax.inject', name: 'javax.inject', version: versions.javaxInject)
 
     compileOnly(group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: spotbugs.toolVersion)

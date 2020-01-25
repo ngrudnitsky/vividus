@@ -14,26 +14,33 @@
  * limitations under the License.
  */
 
-package org.vividus.ui.web.event;
+package org.vividus.selenium.model;
 
-import org.openqa.selenium.WebDriver;
+import org.jbehave.core.annotations.AsParameters;
 
-public class WebDriverCreateEvent
+@AsParameters
+public class DesiredCapability
 {
-    private WebDriver webDriver;
+    private String capabilityName;
+    private String value;
 
-    public WebDriverCreateEvent(WebDriver webDriver)
+    public String getCapabilityName()
     {
-        this.webDriver = webDriver;
+        return capabilityName;
     }
 
-    public WebDriver getWebDriver()
+    public void setCapabilityName(String capabilityName)
     {
-        return webDriver;
+        this.capabilityName = capabilityName;
     }
 
-    public void setWebDriver(WebDriver webDriver)
+    public String getValue()
     {
-        this.webDriver = webDriver;
+        return value;
+    }
+
+    public void setValue(String value)
+    {
+        this.value = value;
     }
 }

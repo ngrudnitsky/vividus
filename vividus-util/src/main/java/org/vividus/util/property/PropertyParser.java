@@ -28,8 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class PropertyParser implements IPropertyParser
 {
-    private static final String PROPERTY_FAMILY_SPLITTER = ".";
-
     private Properties properties;
 
     @Override
@@ -39,12 +37,11 @@ public class PropertyParser implements IPropertyParser
     }
 
     @Override
-    public Map<String, String> getPropertyValuesByFamily(String family)
+    public Map<String, String> getPropertyValuesByPrefix(String propertyPrefix)
     {
-        return getPropertiesByPrefix(family + PROPERTY_FAMILY_SPLITTER).entrySet()
+        return getPropertiesByPrefix(propertyPrefix).entrySet()
                 .stream()
-                .filter(p -> family.equals(extractPropertyFamily(p)))
-                .collect(toMap(PropertyParser::extractPropertyKey, Entry::getValue));
+                .collect(toMap(e -> extractPropertyKey(e.getKey(), propertyPrefix), Entry::getValue));
     }
 
     @Override
@@ -65,14 +62,9 @@ public class PropertyParser implements IPropertyParser
                 .collect(toMap(p -> (String) p.getKey(), p -> (String) p.getValue()));
     }
 
-    private static String extractPropertyFamily(Entry<String, String> p)
+    private static String extractPropertyKey(String key, String prefix)
     {
-        return StringUtils.substringBeforeLast(p.getKey(), PROPERTY_FAMILY_SPLITTER);
-    }
-
-    private static String extractPropertyKey(Entry<String, String> p)
-    {
-        return StringUtils.substringAfterLast(p.getKey(), PROPERTY_FAMILY_SPLITTER);
+        return StringUtils.removeStart(key, prefix);
     }
 
     public void setProperties(Properties properties)

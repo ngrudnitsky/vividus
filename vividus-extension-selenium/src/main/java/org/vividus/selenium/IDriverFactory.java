@@ -16,16 +16,10 @@
 
 package org.vividus.selenium;
 
-public interface SauceLabsCapabilityType
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+
+public interface IDriverFactory extends HasSeleniumGridDesiredCapabilities
 {
-    String NAME = "name";
-    String SCREEN_RESOLUTION = "screen-resolution";
-    String APPIUM_VERSION = "appiumVersion";
-    String DEVICE_NAME = "deviceName";
-    String DEVICE_ORIENTATION = "device-orientation";
-    String PLATFORM_VERSION = "platformVersion";
-    String IEDRIVER_VERSION = "iedriver-version";
-    String DEVICE = "device";
-    String CAPABILITIES = "capabilities";
-    String SELENIUM_VERSION = "seleniumVersion";
+    WebDriver getRemoteWebDriver(DesiredCapabilities desiredCapabilities);
 }

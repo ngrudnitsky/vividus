@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import com.google.common.base.Suppliers;
 
 import org.openqa.selenium.ScreenOrientation;
-import org.vividus.selenium.IWebDriverFactory;
+import org.vividus.selenium.HasSeleniumGridDesiredCapabilities;
 import org.vividus.selenium.SauceLabsCapabilityType;
 import org.vividus.selenium.manager.IWebDriverManager;
 import org.vividus.ui.web.action.IJavascriptActions;
@@ -41,7 +41,7 @@ public class AshotFactory implements IAshotFactory
 {
     private ScreenshotShootingStrategy screenshotShootingStrategy;
 
-    @Inject private IWebDriverFactory webDriverFactory;
+    @Inject private HasSeleniumGridDesiredCapabilities hasSeleniumGridDesiredCapabilities;
     @Inject private IWebDriverManager webDriverManager;
     @Inject private IJavascriptActions javascriptActions;
     @Inject private ScreenshotDebugger screenshotDebugger;
@@ -105,7 +105,7 @@ public class AshotFactory implements IAshotFactory
     private AShot createAShot(ShootingStrategy baseShootingStrategy,
             ScreenshotShootingStrategy screenshotShootingStrategy, boolean viewportScreenshot)
     {
-        String deviceName = (String) webDriverFactory.getSeleniumGridDesiredCapabilities()
+        String deviceName = (String) hasSeleniumGridDesiredCapabilities.getSeleniumGridDesiredCapabilities()
                 .getCapability(SauceLabsCapabilityType.DEVICE_NAME);
         boolean landscapeOrientation = webDriverManager.isOrientation(ScreenOrientation.LANDSCAPE);
         ShootingStrategy shootingStrategy = screenshotShootingStrategy.getDecoratedShootingStrategy(

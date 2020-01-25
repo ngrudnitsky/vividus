@@ -35,10 +35,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WrapsDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.vividus.selenium.event.WebDriverCreateEvent;
+import org.vividus.selenium.event.WebDriverQuitEvent;
 import org.vividus.testcontext.SimpleTestContext;
 import org.vividus.testcontext.TestContext;
-import org.vividus.ui.web.event.WebDriverCreateEvent;
-import org.vividus.ui.web.event.WebDriverQuitEvent;
 
 @ExtendWith(MockitoExtension.class)
 class WebDriverProviderTests
@@ -46,7 +46,7 @@ class WebDriverProviderTests
     private final TestContext testContext = new SimpleTestContext();
 
     @Mock
-    private VividusWebDriverFactory vividusWebDriverFactory;
+    private IVividusDriverFactory vividusDriverFactory;
 
     @Mock
     private RemoteWebDriver driver;
@@ -100,7 +100,7 @@ class WebDriverProviderTests
     void testDestroy()
     {
         Mockito.doNothing().when(mockedEventBus).post(any(WebDriverCreateEvent.class));
-        when(vividusWebDriverFactory.create()).thenReturn(vividusWebDriver);
+        when(vividusDriverFactory.create()).thenReturn(vividusWebDriver);
         when(vividusWebDriver.getWrappedDriver()).thenReturn(driver);
         webDriverProvider.get();
         webDriverProvider.destroy();

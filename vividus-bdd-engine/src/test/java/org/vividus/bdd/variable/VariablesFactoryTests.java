@@ -48,7 +48,7 @@ class VariablesFactoryTests
         IBddRunContext bddRunContext = mock(IBddRunContext.class);
 
         VariablesFactory variablesFactory = new VariablesFactory(propertyParser, propertyMapper, bddRunContext);
-        when(propertyParser.getPropertyValuesByFamily(GLOBAL_PROPERTY_FAMILY)).thenReturn(globals);
+        when(propertyParser.getPropertyValuesByPrefix(GLOBAL_PROPERTY_FAMILY)).thenReturn(globals);
         when(propertyMapper.readValues(BATCH_PROPERTY_FAMILY, Map.class)).thenReturn(Map.of("1", batches));
         when(bddRunContext.getRunningBatchKey()).thenReturn("batch-1");
         variablesFactory.init();

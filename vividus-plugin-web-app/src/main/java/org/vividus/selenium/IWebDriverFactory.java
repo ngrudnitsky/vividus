@@ -19,15 +19,11 @@ package org.vividus.selenium;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-public interface IWebDriverFactory
+public interface IWebDriverFactory extends IDriverFactory
 {
     WebDriver getWebDriver(DesiredCapabilities desiredCapabilities);
 
     WebDriver getWebDriver(WebDriverType webDriverType, DesiredCapabilities desiredCapabilities);
 
     WebDriver getWebDriver(String webDriverType, DesiredCapabilities desiredCapabilities);
-
-    WebDriver getRemoteWebDriver(DesiredCapabilities desiredCapabilities);
-
-    DesiredCapabilities getSeleniumGridDesiredCapabilities();
 }

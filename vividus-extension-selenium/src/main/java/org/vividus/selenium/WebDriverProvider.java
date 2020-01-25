@@ -23,13 +23,13 @@ import javax.inject.Inject;
 import com.google.common.eventbus.EventBus;
 
 import org.openqa.selenium.WebDriver;
+import org.vividus.selenium.event.WebDriverCreateEvent;
+import org.vividus.selenium.event.WebDriverQuitEvent;
 import org.vividus.testcontext.TestContext;
-import org.vividus.ui.web.event.WebDriverCreateEvent;
-import org.vividus.ui.web.event.WebDriverQuitEvent;
 
 public class WebDriverProvider implements IWebDriverProvider
 {
-    private IVividusWebDriverFactory vividusWebDriverFactory;
+    private IVividusDriverFactory vividusDriverFactory;
     private final ConcurrentLinkedQueue<WebDriver> webDrivers = new ConcurrentLinkedQueue<>();
     @Inject private EventBus eventBus;
     private TestContext testContext;
@@ -51,7 +51,7 @@ public class WebDriverProvider implements IWebDriverProvider
         VividusWebDriver vividusWebDriver = testContext.get(VividusWebDriver.class);
         if (vividusWebDriver == null)
         {
-            vividusWebDriver = vividusWebDriverFactory.create();
+            vividusWebDriver = vividusDriverFactory.create();
             testContext.put(VividusWebDriver.class, vividusWebDriver);
             WebDriver driver = vividusWebDriver.getWrappedDriver();
             webDrivers.add(driver);
@@ -105,9 +105,9 @@ public class WebDriverProvider implements IWebDriverProvider
         webDrivers.forEach(WebDriver::quit);
     }
 
-    public void setVividusWebDriverFactory(IVividusWebDriverFactory vividusWebDriverFactory)
+    public void setVividusDriverFactory(IVividusDriverFactory vividusDriverFactory)
     {
-        this.vividusWebDriverFactory = vividusWebDriverFactory;
+        this.vividusDriverFactory = vividusDriverFactory;
     }
 
     public void setTestContext(TestContext testContext)
