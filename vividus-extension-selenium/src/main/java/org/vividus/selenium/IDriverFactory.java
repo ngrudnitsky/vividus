@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-package org.vividus.ui.web.event;
+package org.vividus.selenium;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
-public class WebDriverCreateEvent
+public interface IDriverFactory
 {
-    private WebDriver webDriver;
+    WebDriver getRemoteWebDriver(DesiredCapabilities desiredCapabilities);
 
-    public WebDriverCreateEvent(WebDriver webDriver)
-    {
-        this.webDriver = webDriver;
-    }
-
-    public WebDriver getWebDriver()
-    {
-        return webDriver;
-    }
-
-    public void setWebDriver(WebDriver webDriver)
-    {
-        this.webDriver = webDriver;
-    }
+    <T> T getCapability(String capabilityName, boolean localRun);
 }

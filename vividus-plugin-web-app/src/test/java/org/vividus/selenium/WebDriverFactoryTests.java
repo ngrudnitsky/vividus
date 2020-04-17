@@ -93,7 +93,7 @@ class WebDriverFactoryTests
     private static final String ARG_2 = "--arg2";
     private static final String ARGS = ARG_1 + " " + ARG_2;
 
-    private final TestLogger logger = TestLoggerFactory.getTestLogger(WebDriverFactory.class);
+    private final TestLogger logger = TestLoggerFactory.getTestLogger(DriverFactory.class);
 
     @Mock(extraInterfaces = HasCapabilities.class)
     private WebDriver driver;

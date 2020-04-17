@@ -42,10 +42,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WrapsDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.vividus.selenium.event.WebDriverCreateEvent;
+import org.vividus.selenium.event.WebDriverQuitEvent;
 import org.vividus.testcontext.SimpleTestContext;
 import org.vividus.testcontext.TestContext;
-import org.vividus.ui.web.event.WebDriverCreateEvent;
-import org.vividus.ui.web.event.WebDriverQuitEvent;
 
 @ExtendWith(MockitoExtension.class)
 class WebDriverProviderTests

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd"
+        default-lazy-init="true" profile="web">
+
+    <bean id="mitmManagerFactory" class="org.vividus.proxy.mitm.MitmManagerFactory" />
+
+    <bean id="proxyServerFactory" class="org.vividus.proxy.ProxyServerFactory">
+        <property name="trustAllServers" value="${proxy.trust-all-servers}" />
+        <property name="mitmEnabled" value="${proxy.mitm.enabled}" />
+        <property name="mitmManagerFactory" ref="mitmManagerFactory" />
+        <property name="mitmManagerOptions">
+            <bean class="org.vividus.proxy.mitm.MitmManagerOptions" >
+                <constructor-arg index="0" value="${proxy.mitm.key-store.alias}" />
+                <constructor-arg index="1" value="${proxy.trust-all-servers}" />
+                <constructor-arg index="2" >
+                    <bean class="org.vividus.http.keystore.KeyStoreOptions">
+                        <constructor-arg index="0" value="${proxy.mitm.key-store.path}" />
+                        <constructor-arg index="1" value="${proxy.mitm.key-store.password}" />
+                        <constructor-arg index="2" value="${proxy.mitm.key-store.type}" />
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="advancedHostResolver">
+            <bean class="org.vividus.proxy.dns.HostNameResolver">
+                <property name="dnsMappingStorage" ref="localDnsStorage" />
+            </bean>
+        </property>
+        <property name="captureTypes" value="${proxy.capture-types}"/>
+    </bean>
+
+    <bean id="driverFactory" class="org.vividus.selenium.DriverFactory">
+        <property name="remoteDriverUrl" value="${selenium.grid.url}" />
+        <property name="jsonUtils" ref="jsonUtils-LowerCamelCase" />
+    </bean>
+
+    <bean id="remoteWebDriverFactory" class="org.vividus.selenium.RemoteWebDriverFactory" />
+
+    <bean id="driverManager" class="org.vividus.selenium.manager.DriverManager">
+        <property name="nativeApp" value="${mobile-native-app}" />
+    </bean>
+
+    <bean id="webDriverProvider" class="org.vividus.selenium.WebDriverProvider" />
+
+    <bean id="webDriverManagerContext" class="org.vividus.selenium.WebDriverManagerContext" />
+ </beans>

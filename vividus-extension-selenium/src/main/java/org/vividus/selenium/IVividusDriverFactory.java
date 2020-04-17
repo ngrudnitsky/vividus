@@ -16,7 +16,7 @@
 
 package org.vividus.selenium;
 
-public interface IVividusWebDriverFactory
+public interface IVividusDriverFactory
 {
     VividusWebDriver create();
 }

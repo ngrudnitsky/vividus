@@ -23,16 +23,16 @@ import javax.inject.Inject;
 import com.google.common.eventbus.EventBus;
 
 import org.openqa.selenium.WebDriver;
+import org.vividus.selenium.event.WebDriverCreateEvent;
+import org.vividus.selenium.event.WebDriverQuitEvent;
 import org.vividus.testcontext.TestContext;
-import org.vividus.ui.web.event.WebDriverCreateEvent;
-import org.vividus.ui.web.event.WebDriverQuitEvent;
 
 public class WebDriverProvider implements IWebDriverProvider
 {
-    private IVividusWebDriverFactory vividusWebDriverFactory;
+    @Inject private IVividusDriverFactory vividusWebDriverFactory;
     private final ConcurrentLinkedQueue<WebDriver> webDrivers = new ConcurrentLinkedQueue<>();
     @Inject private EventBus eventBus;
-    private TestContext testContext;
+    @Inject private TestContext testContext;
 
     @Override
     public boolean isRemoteExecution()
@@ -105,7 +105,7 @@ public class WebDriverProvider implements IWebDriverProvider
         webDrivers.forEach(WebDriver::quit);
     }
 
-    public void setVividusWebDriverFactory(IVividusWebDriverFactory vividusWebDriverFactory)
+    public void setVividusWebDriverFactory(IVividusDriverFactory vividusWebDriverFactory)
     {
         this.vividusWebDriverFactory = vividusWebDriverFactory;
     }

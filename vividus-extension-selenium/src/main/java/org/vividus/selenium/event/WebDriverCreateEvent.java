@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
-package org.vividus.selenium.manager;
+package org.vividus.selenium.event;
 
-import org.vividus.selenium.BrowserWindowSize;
-import org.vividus.selenium.WebDriverType;
+import org.openqa.selenium.WebDriver;
 
-public interface IWebDriverManager extends IDriverManager
+public class WebDriverCreateEvent
 {
-    void resize(BrowserWindowSize browserWindowSize);
+    private WebDriver webDriver;
 
-    boolean isElectronApp();
+    public WebDriverCreateEvent(WebDriver webDriver)
+    {
+        this.webDriver = webDriver;
+    }
 
-    boolean isTypeAnyOf(WebDriverType... webDriverTypes);
+    public WebDriver getWebDriver()
+    {
+        return webDriver;
+    }
 
-    WebDriverType detectType();
+    public void setWebDriver(WebDriver webDriver)
+    {
+        this.webDriver = webDriver;
+    }
 }
