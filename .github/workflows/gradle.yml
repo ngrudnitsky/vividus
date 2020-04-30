@@ -88,6 +88,13 @@ jobs:
       if: matrix.platform == 'ubuntu-latest'
       run: ./gradlew :vividus-tests:runStories -Pvividus.configuration.environments=integration
 
+    - name: Publish Integration tests trends
+      if: github.ref == 'refs/heads/master' && matrix.platform == 'ubuntu-latest' && always()
+      uses: actions/upload-artifact@v1
+      with:
+        name: allure-trends
+        path: vividus-tests/output/history
+
     - name: Publish Integration tests report
       if: matrix.platform == 'ubuntu-latest' && always()
       uses: actions/upload-artifact@v1
