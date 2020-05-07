@@ -17,6 +17,7 @@
 package org.vividus.bdd.transformer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Properties;
 
@@ -36,7 +37,6 @@ class ResolvingSelfReferencesEagerlyTransformerTests
             "'|A|B|C|\n|a|<A>|c|',                     '|A|B|C|\n|a|a|c|'",
             "'|A|B|C|\n|a1|<A>|c1|\n|a2|<A>|c2|',      '|A|B|C|\n|a1|a1|c1|\n|a2|a2|c2|'",
             "'|A|B|C|D|E|F|\n|<C>|<A>|c|<F>|<D>|<B>|', '|A|B|C|D|E|F|\n|c|c|c|c|c|c|'",
-            "'|A|B|C|\n|<B>|<A>|c|',                   '|A|B|C|\n|<B>|<B>|c|'",
             "'|A|B|C|\n|a|<A><C>|c|',                  '|A|B|C|\n|a|ac|c|'",
             "'|A|B|C|\n|a<p>|<p><A>|c|',               '|A|B|C|\n|a<p>|<p>a<p>|c|'",
             "'|A|B|C|\n|a|<A>|',                       '|A|B|C|\n|a|a|'",
@@ -46,6 +46,28 @@ class ResolvingSelfReferencesEagerlyTransformerTests
     void shouldTransform(String beforeTransform, String expectedResult)
     {
         assertEquals(expectedResult, transform(beforeTransform));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "'|A|B|C|\n|<B>|<C>|<A>|', A -> B -> C -> A",
+            "'|A|B|C|\n|<B>|<C>|<B>|', B -> C -> B"
+    })
+    void shouldFailWhenSelfReferenceIsDetected(String input, String chain)
+    {
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> transform(input));
+        assertEquals("Circular chain of references is found: " + chain, exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "'|A|\n|<A>|'",
+            "'|A|\n|a<A>b|'"
+    })
+    void shouldFailWhenChainOfReferencesIsDetected(String input)
+    {
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> transform(input));
+        assertEquals("Circular self reference is found in column 'A'", exception.getMessage());
     }
 
     private String transform(String beforeTransform)

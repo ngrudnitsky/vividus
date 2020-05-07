@@ -27,6 +27,7 @@ import java.util.stream.IntStream;
 
 import javax.inject.Named;
 
+import org.apache.commons.lang3.Validate;
 import org.jbehave.core.model.ExamplesTable.ExamplesTableProperties;
 import org.jbehave.core.model.TableParsers;
 import org.jbehave.core.steps.ParameterControls;
@@ -41,7 +42,8 @@ public class ResolvingSelfReferencesEagerlyTransformer implements ExtendedTableT
     public ResolvingSelfReferencesEagerlyTransformer(ParameterControls parameterControls)
     {
         this.parameterControls = parameterControls;
-        placeholderPattern = Pattern.compile(addDelimiters("(.*?)"));
+        placeholderPattern = Pattern.compile(
+                parameterControls.nameDelimiterLeft() + "(.*?)" + parameterControls.nameDelimiterRight());
     }
 
     @Override
@@ -50,94 +52,76 @@ public class ResolvingSelfReferencesEagerlyTransformer implements ExtendedTableT
         List<String> tableAsRows = ExamplesTableProcessor.parseRows(tableAsString);
         List<String> header = tableParsers.parseRow(tableAsRows.get(0), true, properties);
         List<List<String>> inputRows = ExamplesTableProcessor.parseDataRows(tableAsRows, tableParsers, properties);
-        SelfReferencesResolver resolver = new SelfReferencesResolver(header);
-        List<List<String>> resolvedRows = inputRows.stream().map(resolver::resolveRow).collect(Collectors.toList());
+        List<List<String>> resolvedRows = new SelfReferencesResolver(header).resolveRows(inputRows);
         return ExamplesTableProcessor.buildExamplesTable(header, resolvedRows, properties, true);
-    }
-
-    private String addDelimiters(String s)
-    {
-        return parameterControls.nameDelimiterLeft() + s + parameterControls.nameDelimiterRight();
     }
 
     private final class SelfReferencesResolver
     {
-        private Map<String, String> unresolvedRow;
-        private Map<String, String> resolvedRow;
         private final List<String> header;
 
-        private SelfReferencesResolver(List<String> header)
+        SelfReferencesResolver(List<String> header)
         {
             this.header = header;
+        }
+
+        List<List<String>> resolveRows(List<List<String>> rows)
+        {
+            return rows.stream().map(this::resolveRow).collect(Collectors.toList());
         }
 
         private List<String> resolveRow(List<String> row)
         {
             int range = Integer.min(row.size(), header.size());
-            resolvedRow = new HashMap<>(range, 1);
-            unresolvedRow = IntStream.range(0, range).boxed().collect(Collectors.toMap(header::get, row::get));
-            List<String> result = new ArrayList<>();
-            for (int i = 0; i < range; i++)
-            {
-                String key = header.get(i);
-                resolveValue(key);
-                result.add(resolvedRow.get(key));
-            }
-            return result;
+            Map<String, String> resolvedRow = new HashMap<>(range, 1);
+            Map<String, String> unresolvedRow = IntStream.range(0, range)
+                    .boxed()
+                    .collect(Collectors.toMap(header::get, row::get));
+            return unresolvedRow.keySet().stream()
+                    .map(name -> resolveCell(name, resolvedRow, unresolvedRow))
+                    .collect(Collectors.toList());
         }
 
-        private void resolveValue(String key)
+        private String resolveCell(String name, Map<String, String> resolvedRow, Map<String, String> unresolvedRow)
         {
-            if (notResolved(key))
-            {
-                String valueToResolve = unresolvedRow.get(key);
-                if (doNotResolve(valueToResolve))
-                {
-                    putPlaceholderWithoutResolving(key);
-                }
-                else
-                {
-                    putResolvedPlaceholder(key, valueToResolve);
-                    resolveValue(key, valueToResolve);
-                }
-            }
+            return resolveCell(name, new ArrayList<>(), resolvedRow, unresolvedRow);
         }
 
-        private void resolveValue(String key, String valueToResolve)
+        private String resolveCell(String name, List<String> resolutionChain, Map<String, String> resolvedRow,
+                Map<String, String> unresolvedRow)
         {
-            String result = valueToResolve;
+            if (resolvedRow.containsKey(name))
+            {
+                return resolvedRow.get(name);
+            }
+            resolutionChain.add(name);
+            String result = unresolvedRow.get(name);
             Matcher matcher = placeholderPattern.matcher(result);
             while (matcher.find())
             {
-                String placeholder = matcher.group(1);
-                if (!placeholder.equals(key))
+                String nestedName = matcher.group(1);
+                Validate.validState(!name.equals(nestedName), "Circular self reference is found in column '%s'", name);
+                checkForCircularChainOfReferences(resolutionChain, nestedName);
+                if (unresolvedRow.containsKey(nestedName))
                 {
-                    resolveValue(placeholder);
-                    result = parameterControls
-                            .replaceAllDelimitedNames(result, placeholder, resolvedRow.get(placeholder));
+                    resolveCell(nestedName, resolutionChain, resolvedRow, unresolvedRow);
                 }
+                result = parameterControls.replaceAllDelimitedNames(result, nestedName, resolvedRow.get(nestedName));
             }
-            resolvedRow.put(key, result);
+            resolvedRow.put(name, result);
+            return result;
         }
 
-        private boolean doNotResolve(String valueToResolve)
+        private void checkForCircularChainOfReferences(List<String> resolutionChain, String name)
         {
-            return valueToResolve == null;
-        }
-
-        private void putPlaceholderWithoutResolving(String key)
-        {
-            putResolvedPlaceholder(key, addDelimiters(key));
-        }
-
-        private void putResolvedPlaceholder(String key, String value)
-        {
-            resolvedRow.put(key, value);
-        }
-
-        private boolean notResolved(String key)
-        {
-            return !resolvedRow.containsKey(key);
+            int index = resolutionChain.indexOf(name);
+            if (index >= 0)
+            {
+                String delimiter = " -> ";
+                String truncatedChain = resolutionChain.stream().skip(index).collect(Collectors.joining(delimiter));
+                throw new IllegalStateException(
+                        "Circular chain of references is found: " + truncatedChain + delimiter + name);
+            }
         }
     }
 }
