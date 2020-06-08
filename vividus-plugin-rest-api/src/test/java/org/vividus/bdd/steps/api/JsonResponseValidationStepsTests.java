@@ -186,6 +186,22 @@ class JsonResponseValidationStepsTests
     }
 
     @Test
+    void testIsDataByJsonPathFromJsonEqualCheckEmptyArrayMissmatch()
+    {
+        String json = "{ \"arrayKey\": [ { \"idKey\": \"q4jn0f8\", \"randValueKey\": \"i4t8ivC\"} ] }";
+        String expected = "[ { \"idKey\": \"b54Y8id\", \"randValueKey\": \"i4t8ivC\"} ]";
+
+        jsonResponseValidationSteps.isDataByJsonPathFromJsonEqual(json, "$.arrayKey.[?(@.idKey==\"b54Y8id\")]",
+                expected, Options.empty());
+
+        verify(softAssert).recordFailedAssertion("Array \"\" has different length, expected: <1> but was: <0>.");
+        verify(softAssert).recordFailedAssertion("Array \"\" has different content. Missing values: "
+                + "[{\"idKey\":\"b54Y8id\",\"randValueKey\":\"i4t8ivC\"}], expected: <[{\"idKey\":\"b54Y8id\","
+                + "\"randValueKey\":\"i4t8ivC\"}]> but was: <[]>");
+        verifyNoMoreInteractions(softAssert);
+    }
+
+    @Test
     void testIsDataByJsonPathEqualIgnoringArrayOrderAndExtraArrayItems()
     {
         when(httpTestContext.getJsonContext()).thenReturn(JSON);
@@ -403,7 +419,8 @@ class JsonResponseValidationStepsTests
         when(httpTestContext.getJsonContext()).thenReturn(JSON);
         int retryTimes = 4;
         jsonResponseValidationSteps.waitForJsonElement(STRING_PATH, Duration.ofSeconds(2), retryTimes, stepsToExecute);
-        verify(stepsToExecute, times(retryTimes)).execute(Optional.empty());
+        verify(stepsToExecute, atLeast(retryTimes - 1)).execute(Optional.empty());
+        verify(stepsToExecute, atMost(retryTimes)).execute(Optional.empty());
         verify(softAssert).assertThat(eq(THE_NUMBER_OF_JSON_ELEMENTS_ASSERTION_MESSAGE + STRING_PATH), eq(1),
                 verifyMatcher(1));
     }
